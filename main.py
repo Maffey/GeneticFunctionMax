@@ -7,11 +7,13 @@ converting bin to int       int("binary_string", base=2)
 converting int to bin       bin(number)
 """
 
+import copy
 import random
+
+import matplotlib.pyplot as plt
+
 from chromosome import Chromosome
 from function import Function
-import matplotlib.pyplot as plt
-import copy
 
 
 # This might stay out of class.
@@ -24,7 +26,7 @@ def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
     return list_of_chromosomes
 
 
-# TODO: Create redistribution function.
+# TODO: recreate redistribution function.
 def redistribute_chromosomes(chromosomes, chromosomes_values, number_of_chromosomes):
     return random.choices(population=chromosomes, weights=chromosomes_values, k=number_of_chromosomes)
 
@@ -49,6 +51,7 @@ for chromo in chromos:
 
 print("Chromos count: ", Chromosome.chromosome_count)
 
+# TODO: Put all that shit into functions. and a loop.
 # Get values and its sum
 fun_values = fun.get_values_list(args_of_chromos)
 fun_sum = fun.get_sum(args_of_chromos)
@@ -62,6 +65,14 @@ plt.tight_layout()
 plt.show()
 
 redistributed_chromos = redistribute_chromosomes(chromos, fun_values, 6)
+
+# If there is any code deserving a Code of Shame trophy, it's this one below.
+# Make copies of chromosomes to allow for smooth crossing and mutations.
+temp_chromos = []
+for chromo in redistributed_chromos:
+    chromo_copy = copy.copy(chromo)
+    temp_chromos.append(chromo_copy)
+redistributed_chromos = temp_chromos
 
 # Redistribution: OK
 print("REDISTRIBUTED CHROMOSOMES")
