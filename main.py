@@ -10,6 +10,7 @@ converting int to bin       bin(number)
 import random
 from chromosome import Chromosome
 from function import Function
+import matplotlib.pyplot as plt
 
 
 # This might stay out of class.
@@ -34,24 +35,28 @@ fun.display()
 
 # Initialize chromosomes
 chromos = initialize_chromosomes(6, 1, 31)  # Default values, test phase
+
+# TODO: optimize this shit
+args_of_chromos = []  # Get values of chromos into a list
+labels = []  # Needed for our sweet cake!
+i = 0
 for chromo in chromos:
     chromo.display()
+    int_form = chromo.get_integer()
+    args_of_chromos.append(int_form)
+    labels.append(f"Ch{i}: {int_form}")
+    i += 1
 
-# Get values of chromos into a list
-values_of_chromos = []
-for chromo in chromos:
-    values_of_chromos.append(chromo.get_integer())
+# Get values and its sum
+fun_sum = fun.get_sum(args_of_chromos)
+print("Sum of values: ", fun_sum)
 
+# Plot a tasty pie chart
+sizes = fun.get_values_list(args_of_chromos)
 
-
-# Tests
-print("=== TESTS ===")
-
-# Get sum of values.
-print("Sum of values: ", fun.get_sum(values_of_chromos))
-
-chromos[0].display()
-chromos[0].swap_bit(3)
-chromos[0].display()
+# Plot
+plt.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=140)
+plt.axis('equal')
+plt.show()
 
 print("Chromos count: ", Chromosome.chromosome_count)

@@ -22,8 +22,12 @@ class Function:
     def get_value(self, x):
         return self.a * (x ** 3) + self.b * (x ** 2) + self.c * x + self.d
 
-    def get_sum(self, list_of_x):
+    # TODO: try to optimize that.
+    def get_values_list(self, list_of_x):
         list_of_values = []
         for x in list_of_x:
             list_of_values.append(self.get_value(x))
-        return sum(list_of_values)
+        return list_of_values
+
+    def get_sum(self, list_of_x):
+        return sum(self.get_values_list(list_of_x))
