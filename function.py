@@ -29,5 +29,6 @@ class Function:
             list_of_values.append(self.get_value(x))
         return list_of_values
 
+    # TODO: test this shit out
     def get_sum(self, list_of_x):
         return sum(self.get_values_list(list_of_x))
