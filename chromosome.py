@@ -6,15 +6,15 @@ class Chromosome:
     Class that carries all the information of a chromosome and operations needed to mutate, cross and age it.
     """
     chromosome_count = 0
-    crossing_parameter = 0.8
-    mutation_parameter = 0.2
+    crossing_parameter = 0.5
+    mutation_parameter = 0.05
 
     def __init__(self, binary: str) -> None:
         self.binary = binary
         Chromosome.chromosome_count += 1
 
     def display(self):
-        print(f"||Chromosome|| id: {id(self)} --- bin: {self.binary} --- int: {int(self.binary, base=2)}")
+        print(f"||Chromosome|| id: {id(self)} --- bin: {self.binary} --- int: {self.get_integer()}")
 
     def get_integer(self):
         return int(self.binary, base=2)

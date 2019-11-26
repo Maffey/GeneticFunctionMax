@@ -18,7 +18,6 @@ from function import Function
 
 # logging.basicConfig()
 
-
 # This might stay out of class.
 def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
     list_of_chromosomes = []
@@ -29,9 +28,9 @@ def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
     return list_of_chromosomes
 
 
-# TODO: recreate redistribution function.
-def redistribute_chromosomes(chromosomes, chromosomes_values, number_of_chromosomes):
-    return random.choices(population=chromosomes, weights=chromosomes_values, k=number_of_chromosomes)
+# TODO: remve number_of_chromosomes, just stick with len(chromosomes)
+def redistribute_chromosomes(chromosomes, chromosomes_values):
+    return random.choices(population=chromosomes, weights=chromosomes_values, k=len(chromosomes))
 
 
 def plot_piechart(values, labels):
@@ -46,19 +45,19 @@ def plot_piechart(values, labels):
 def single_epoch(function, chromosomes):
     # Display all chromosomes, create a list of integer values of them and create labels list for pie chart.
     chromosomes_integers = []  # Get values of chromos into a list
-    chromosome_labels = []  # Needed for our sweet cake!
+    chromosome_labels = []  # ARBEIT MACHT FREI
     # print("=== CHROMOSOMES STARTER PACK ===")
     for i in range(len(chromosomes)):
         int_form = chromosomes[i].get_integer()
         chromosomes_integers.append(int_form)
-        chromosome_labels.append(f"Ch{i}: {int_form}")
+        chromosome_labels.append(f"Ch{i}: {int_form}")  # PIE CHART
     # Get values and its sum
     function_values = function.get_values_list(chromosomes_integers)
 
     # Plot a tasty pie chart DEBUG
     # plot_piechart(fun_values, chromos_labels)
 
-    redistributed_chromos = redistribute_chromosomes(chromosomes, function_values, 6)
+    redistributed_chromos = redistribute_chromosomes(chromosomes, function_values)
 
     # If there is any code deserving a Code of Shame trophy, it's this one below.
     # Make copies of chromosomes to allow for smooth crossing and mutations.
@@ -85,10 +84,11 @@ fun.display()
 
 # Initialize chromosomes
 # TODO: PRINT THIS SHIT OUT AT THE BEGINNING
-chromos = initialize_chromosomes(6, 1, 31)  # Default values, test phase
+# TODO: number of chromosomes doesn't change anythin, figure out why
+chromos = initialize_chromosomes(100, 1, 31)  # Default values, test phase
 
-# MAIN LOOP
-for epoch in range(1000):
+# MAIN LOOP  - WORK IN PROGRESS
+for epoch in range(300):
     if epoch == 0:
         result = single_epoch(fun, chromos)
     result = single_epoch(fun, result)
