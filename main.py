@@ -84,7 +84,6 @@ fun.display()
 
 # Initialize chromosomes
 # TODO: PRINT THIS SHIT OUT AT THE BEGINNING
-# TODO: number of chromosomes doesn't change anythin, figure out why
 chromos = initialize_chromosomes(100, 1, 31)  # Default values, test phase
 
 # MAIN LOOP  - WORK IN PROGRESS
