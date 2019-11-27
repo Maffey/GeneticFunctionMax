@@ -1,3 +1,4 @@
+import logging
 import random
 
 
@@ -6,8 +7,8 @@ class Chromosome:
     Class that carries all the information of a chromosome and operations needed to mutate, cross and age it.
     """
     chromosome_count = 0
-    crossing_parameter = 0.5
-    mutation_parameter = 0.05
+    crossing_parameter = 0.4
+    mutation_parameter = 0.03
 
     def __init__(self, binary: str) -> None:
         self.binary = binary
@@ -32,6 +33,7 @@ class Chromosome:
         If we do, select random index of a bit for a chromosome in range <0, 4>
         """
         if random.random() < Chromosome.mutation_parameter:
+            logging.debug(f"Mutation accepted for {self.binary} : {self.get_integer()}.")
             self.swap_bit(random.randint(0, 4))
 
     def cross(self, chromosome) -> None:
@@ -46,6 +48,7 @@ class Chromosome:
         chromosome_dad(chromosome_mom, cross_parameter)
         """
         if random.random() < Chromosome.crossing_parameter:
+            logging.debug(f"Crossing accepted for {self.binary} : {self.get_integer()}.")
             # Select L parameter (bit index)
             cross_point = random.randint(0, 3)
             # Save the parts that won't be changed

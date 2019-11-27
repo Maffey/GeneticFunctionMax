@@ -1,3 +1,5 @@
+import logging
+
 class Function:
     """
     Class that carries all information of fourth degree polynomial
@@ -20,7 +22,9 @@ class Function:
         print(f"{self.a}x^3 + {self.b}x^2 + {self.c}x + {self.d}")
 
     def get_value(self, x):
-        return self.a * (x ** 3) + self.b * (x ** 2) + self.c * x + self.d
+        value = self.a * (x ** 3) + self.b * (x ** 2) + self.c * x + self.d
+        logging.debug(f"Value for f({x}): {value}")
+        return value
 
     def get_values_list(self, list_of_x):
         list_of_values = []
@@ -29,4 +33,6 @@ class Function:
         return list_of_values
 
     def get_sum(self, list_of_x):
-        return sum(self.get_values_list(list_of_x))
+        sum_of_values = sum(self.get_values_list(list_of_x))
+        logging.debug(f"Total sum of values: {sum_of_values}")
+        return sum_of_values

@@ -8,6 +8,7 @@ converting int to bin       bin(number)
 """
 
 import copy
+import logging
 import random
 
 import matplotlib.pyplot as plt
@@ -15,8 +16,8 @@ import matplotlib.pyplot as plt
 from chromosome import Chromosome
 from function import Function
 
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s: %(message)s')
 
-# logging.basicConfig()
 
 # This might stay out of class.
 def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
@@ -28,10 +29,23 @@ def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
     return list_of_chromosomes
 
 
-# TODO: remve number_of_chromosomes, just stick with len(chromosomes)
 def redistribute_chromosomes(chromosomes, chromosomes_values):
     return random.choices(population=chromosomes, weights=chromosomes_values, k=len(chromosomes))
 
+
+def display_chromosomes(chromosomes):
+    for chromosome in chromosomes:
+        chromosome.display()
+
+
+# TODO: use it in the single epoch
+def get_chromosome_arguments(chromosomes):
+    chromosome_arguments = []
+    for chromosome in chromosomes:
+        chromosome_arguments.append(chromosome.get_integer())
+
+
+# TODO: add a function to get functuion sum values
 
 def plot_piechart(values, labels):
     # Plot a tasty pie chart
@@ -42,10 +56,14 @@ def plot_piechart(values, labels):
     plt.show()
 
 
+def fitness_test(older_generation, new_generation):
+    return new_generation / older_generation * 100
+
+
 def single_epoch(function, chromosomes):
     # Display all chromosomes, create a list of integer values of them and create labels list for pie chart.
     chromosomes_integers = []  # Get values of chromos into a list
-    chromosome_labels = []  # ARBEIT MACHT FREI
+    chromosome_labels = []  # PIE CHART
     # print("=== CHROMOSOMES STARTER PACK ===")
     for i in range(len(chromosomes)):
         int_form = chromosomes[i].get_integer()
@@ -57,42 +75,45 @@ def single_epoch(function, chromosomes):
     # Plot a tasty pie chart DEBUG
     # plot_piechart(fun_values, chromos_labels)
 
-    redistributed_chromos = redistribute_chromosomes(chromosomes, function_values)
+    chromosomes = redistribute_chromosomes(chromosomes, function_values)
 
     # If there is any code deserving a Code of Shame trophy, it's this one below.
     # Make copies of chromosomes to allow for smooth crossing and mutations.
     temp_chromos = []
-    for chromo in redistributed_chromos:
+    for chromo in chromosomes:
         chromo_copy = copy.copy(chromo)
         temp_chromos.append(chromo_copy)
-    redistributed_chromos = temp_chromos
+    chromosomes = temp_chromos
 
     # Cross chromosomes
-    for i in range(0, len(redistributed_chromos), 2):
-        redistributed_chromos[i].cross(redistributed_chromos[i + 1])
+    for i in range(0, len(chromosomes), 2):
+        chromosomes[i].cross(chromosomes[i + 1])
 
     # Mutate chromosomes
-    for chromo in redistributed_chromos:
+    for chromo in chromosomes:
         chromo.mutate()
 
-    return redistributed_chromos
+    return chromosomes
 
 
 # Initialize function
-fun = Function(5, 1, 7, 12)  # Random values, test phase
+fun = Function(-3, 1, -7, 12)  # Random values, test phase
 fun.display()
 
 # Initialize chromosomes
-# TODO: PRINT THIS SHIT OUT AT THE BEGINNING
-chromos = initialize_chromosomes(100, 1, 31)  # Default values, test phase
+chromos = initialize_chromosomes(10, 1, 31)  # Default values, test phase
+print("=== STARTING CHROMOSOMES ===")
+display_chromosomes(chromos)
 
 # MAIN LOOP  - WORK IN PROGRESS
 result = [Chromosome("00000")]
 for epoch in range(300):
     if epoch == 0:
+
         result = single_epoch(fun, chromos)
+    older_result = result
     result = single_epoch(fun, result)
+    # TODO: get sums of values to finish fitness test
 
 print("=== FINISHED CHROMOSOMES ===")
-for c in result:
-    c.display()
+display_chromosomes(result)
