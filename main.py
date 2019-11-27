@@ -87,6 +87,7 @@ fun.display()
 chromos = initialize_chromosomes(100, 1, 31)  # Default values, test phase
 
 # MAIN LOOP  - WORK IN PROGRESS
+result = [Chromosome("00000")]
 for epoch in range(300):
     if epoch == 0:
         result = single_epoch(fun, chromos)
