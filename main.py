@@ -43,6 +43,7 @@ def get_chromosome_arguments(chromosomes):
     chromosome_arguments = []
     for chromosome in chromosomes:
         chromosome_arguments.append(chromosome.get_integer())
+    return chromosome_arguments
 
 
 # TODO: add a function to get functuion sum values
@@ -56,8 +57,15 @@ def plot_piechart(values, labels):
     plt.show()
 
 
-def fitness_test(older_generation, new_generation):
-    return new_generation / older_generation * 100
+def fitness_test(function, old_generation_chromosomes, new_generation_chromosomes):
+    old_generation_integers = get_chromosome_arguments(old_generation_chromosomes)
+    new_generation_integers = get_chromosome_arguments(new_generation_chromosomes)
+    old_generation_sum = function.get_sum(old_generation_integers)
+    new_generation_sum = function.get_sum(new_generation_integers)
+    sum_difference = new_generation_sum - old_generation_sum
+    limit = (max(new_generation_sum, old_generation_sum))
+    # TODO: figure out good measure for fitness. Perhaps compare it to the percent of sums?
+    return sum_difference / limit
 
 
 def single_epoch(function, chromosomes):
@@ -97,7 +105,7 @@ def single_epoch(function, chromosomes):
 
 
 # Initialize function
-fun = Function(-3, 1, -7, 12)  # Random values, test phase
+fun = Function(1, 2, 3, 12)  # Random values, test phase
 fun.display()
 
 # Initialize chromosomes
@@ -106,14 +114,23 @@ print("=== STARTING CHROMOSOMES ===")
 display_chromosomes(chromos)
 
 # MAIN LOOP  - WORK IN PROGRESS
+fitness_count = 0
 result = [Chromosome("00000")]
-for epoch in range(300):
+for epoch in range(500):
     if epoch == 0:
 
         result = single_epoch(fun, chromos)
-    older_result = result
+
+    old_result = result
     result = single_epoch(fun, result)
-    # TODO: get sums of values to finish fitness test
+    fitness_value = fitness_test(fun, old_result, result)
+    logging.debug(f"Fitness value for {epoch}. generation: {fitness_value}")
+    if fitness_value == 0:
+        fitness_count += 1
+    if fitness_count == 10:  # TODO: Terrible indicator of fitness. To be changed later.
+        logging.debug("Fitness is weak. Interrupting genetic evolution.")
+        logging.debug(f"Total epochs: {epoch}")
+        break
 
 print("=== FINISHED CHROMOSOMES ===")
 display_chromosomes(result)
