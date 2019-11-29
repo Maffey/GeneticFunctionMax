@@ -47,7 +47,7 @@ def get_chromosome_arguments(chromosomes):
     return chromosome_arguments
 
 
-# TODO: add a function to get functuion sum values
+# TODO: add a function to get function sum values
 
 def plot_piechart(values, labels):
     # Plot a tasty pie chart
@@ -66,7 +66,7 @@ def fitness_test(function, old_generation_chromosomes, new_generation_chromosome
     new_generation_sum = function.get_sum(new_generation_integers)
     sum_difference = new_generation_sum - old_generation_sum
     limit = (max(new_generation_sum, old_generation_sum))
-    # TODO: figure out good measure for fitness. Perhaps compare it to the percent of sums?
+    # TODO: ensure good fitness test
     return sum_difference / limit
 
 
@@ -107,11 +107,11 @@ def single_epoch(function, chromosomes):
 
 
 # Initialize function
-fun = Function(-15, 2, 1, 12)  # Random values, test phase
+fun = Function(-0.5, 2, 1, 12)  # Random values, test phase
 fun.display()
 
 # Initialize chromosomes
-chromos = initialize_chromosomes(60, 1, 31)  # Default values, test phase
+chromos = initialize_chromosomes(32, 1, 31)  # Default values, test phase
 print("=== STARTING CHROMOSOMES ===")
 display_chromosomes(chromos)
 
@@ -126,12 +126,16 @@ while True:
     old_result = result
     result = single_epoch(fun, result)
     fitness_value = fitness_test(fun, old_result, result)
-    logging.debug(f"Fitness value for {epoch}. generation: {fitness_value}")
-    if abs(fitness_value) < 0.003:  # TODO: Terrible indicator of fitness. To be changed later.
-        logging.debug("Fitness stagnates. Interrupting genetic evolution.")
-        logging.debug(f"Total epochs: {epoch}")
+    logging.info(f"Fitness value for {epoch}. generation: {fitness_value}")
+    if abs(fitness_value) < 0.01:
+        logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epoch}")
         break
     epoch += 1
 
 print("=== FINISHED CHROMOSOMES ===")
 display_chromosomes(result)
+
+# TODO: change fitness function to test the difference between the HIGHEST VALUE chromosome between epochs.
+#  Might be the key idea.
+
+# TODO: This algorithm hates negative values. Solve it out.

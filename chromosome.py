@@ -21,10 +21,12 @@ class Chromosome:
         return int(self.binary, base=2)
 
     def swap_bit(self, index):
+        logging.debug(f"Chromosome to mutate: {self.binary}. Swapping bit at index {index}.")
         if self.binary[index] == "0":
             self.binary = self.binary[:index] + "1" + self.binary[index + 1:]
         else:
             self.binary = self.binary[:index] + "0" + self.binary[index + 1:]
+        logging.debug(f"Mutation effect: {self.binary}")
 
     def mutate(self) -> None:
         """
@@ -58,5 +60,9 @@ class Chromosome:
             crossing_part_chromosome_one = self.binary[cross_point + 1:]
             crossing_part_chromosome_two = chromosome.binary[cross_point + 1:]
             # Perform the crossing
+            logging.debug(f"Crossing performed between A: {self.binary} and B: {chromosome.binary}."
+                          f"Bits after '|' are the ones that were swapped.\n"
+                          f"A: {frozen_part_chromosome_one} | {crossing_part_chromosome_two}\n"
+                          f"B: {frozen_part_chromosome_two} | {crossing_part_chromosome_one}")
             self.binary = frozen_part_chromosome_one + crossing_part_chromosome_two
             chromosome.binary = frozen_part_chromosome_two + crossing_part_chromosome_one
