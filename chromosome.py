@@ -8,7 +8,7 @@ class Chromosome:
     """
     chromosome_count = 0
     crossing_parameter = 0.4
-    mutation_parameter = 0.03
+    mutation_parameter = 0.05
 
     def __init__(self, binary: str) -> None:
         self.binary = binary

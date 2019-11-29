@@ -1,5 +1,6 @@
 import logging
 
+
 class Function:
     """
     Class that carries all information of fourth degree polynomial

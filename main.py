@@ -30,6 +30,7 @@ def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
 
 
 def redistribute_chromosomes(chromosomes, chromosomes_values):
+    # TODO: It's possible we need to offset weight so it's not negative in case of negative values.
     return random.choices(population=chromosomes, weights=chromosomes_values, k=len(chromosomes))
 
 
@@ -58,6 +59,7 @@ def plot_piechart(values, labels):
 
 
 def fitness_test(function, old_generation_chromosomes, new_generation_chromosomes):
+    # TODO: implement dealing with negative numbers
     old_generation_integers = get_chromosome_arguments(old_generation_chromosomes)
     new_generation_integers = get_chromosome_arguments(new_generation_chromosomes)
     old_generation_sum = function.get_sum(old_generation_integers)
@@ -105,18 +107,18 @@ def single_epoch(function, chromosomes):
 
 
 # Initialize function
-fun = Function(1, 2, 3, 12)  # Random values, test phase
+fun = Function(-15, 2, 1, 12)  # Random values, test phase
 fun.display()
 
 # Initialize chromosomes
-chromos = initialize_chromosomes(10, 1, 31)  # Default values, test phase
+chromos = initialize_chromosomes(60, 1, 31)  # Default values, test phase
 print("=== STARTING CHROMOSOMES ===")
 display_chromosomes(chromos)
 
 # MAIN LOOP  - WORK IN PROGRESS
-fitness_count = 0
+epoch = 0
 result = [Chromosome("00000")]
-for epoch in range(500):
+while True:
     if epoch == 0:
 
         result = single_epoch(fun, chromos)
@@ -125,12 +127,11 @@ for epoch in range(500):
     result = single_epoch(fun, result)
     fitness_value = fitness_test(fun, old_result, result)
     logging.debug(f"Fitness value for {epoch}. generation: {fitness_value}")
-    if fitness_value == 0:
-        fitness_count += 1
-    if fitness_count == 10:  # TODO: Terrible indicator of fitness. To be changed later.
-        logging.debug("Fitness is weak. Interrupting genetic evolution.")
+    if abs(fitness_value) < 0.003:  # TODO: Terrible indicator of fitness. To be changed later.
+        logging.debug("Fitness stagnates. Interrupting genetic evolution.")
         logging.debug(f"Total epochs: {epoch}")
         break
+    epoch += 1
 
 print("=== FINISHED CHROMOSOMES ===")
 display_chromosomes(result)
