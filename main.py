@@ -83,8 +83,7 @@ def fitness_test(function, old_generation_chromosomes, new_generation_chromosome
     old_generation_sum = function.get_sum(old_generation_integers)
     new_generation_sum = function.get_sum(new_generation_integers)
     sum_difference = new_generation_sum - old_generation_sum
-    limit = (max(new_generation_sum, old_generation_sum))
-    # Known issue: it might sometimes return division by zero. if the limit is 0.
+    limit = (max(new_generation_sum, old_generation_sum, 0.0000000001))  # Last value ensures no division by zero
     return sum_difference / limit
 
 
@@ -121,7 +120,7 @@ def single_epoch(function, chromosomes):
 
 
 # Initialize function
-fun = Function(5, 2, 1, 3)  # Random values, test phase
+fun = Function(-5, 2, 1, 3)  # Random values, test phase
 fun.display()
 
 # Initialize chromosomes
@@ -142,7 +141,7 @@ while True:
     result = single_epoch(fun, result)
     fitness_value = fitness_test(fun, old_result, result)
     logging.info(f"Fitness value for {epoch}. generation: {fitness_value}")
-    if abs(fitness_value) < 0.025:
+    if abs(fitness_value) < 0.02:
         logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epoch}")
         break
     epoch += 1
