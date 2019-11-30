@@ -125,9 +125,9 @@ fun = Function(5, 2, 1, 3)  # Random values, test phase
 fun.display()
 
 # Initialize chromosomes
-chromosomes = initialize_chromosomes(16, 1, 31)  # Default values, test phase
+gen_chromosomes = initialize_chromosomes(16, 1, 31)  # Default values, test phase
 print("=== STARTING CHROMOSOMES ===")
-display_chromosomes(chromosomes)
+display_chromosomes(gen_chromosomes)
 
 """
     === MAIN LOOP ===
@@ -136,7 +136,7 @@ epoch = 0  # Counts how many generations (epochs) it takes.
 result = [Chromosome("00000")]  # Default value, a safe-check to avoid going through loop without initializing result.
 while True:
     if epoch == 0:
-        result = single_epoch(fun, chromosomes)
+        result = single_epoch(fun, gen_chromosomes)
 
     old_result = result
     result = single_epoch(fun, result)
