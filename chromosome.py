@@ -17,6 +17,9 @@ class Chromosome:
     def display(self):
         print(f"||Chromosome|| id: {id(self)} --- bin: {self.binary} --- int: {self.get_integer()}")
 
+    def display_length(self):
+        return len(f"||Chromosome|| id: {id(self)} --- bin: {self.binary} --- int: {self.get_integer()}")
+
     def get_integer(self):
         return int(self.binary, base=2)
 

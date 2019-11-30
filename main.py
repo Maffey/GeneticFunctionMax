@@ -18,6 +18,11 @@ from function import Function
 
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s: %(message)s')
 
+# The range of chromosome arguments for our algorithm.
+# Since the algorithm has no flexible change of arguments implemented it is not recommended to change those values.
+ARGUMENTS_START_RANGE = 1
+ARGUMENTS_END_RANGE = 31
+
 
 # This might stay out of class.
 def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
@@ -35,7 +40,8 @@ def redistribute_chromosomes(chromosomes, chromosome_values):
                           k=len(chromosomes))
 
 
-def display_chromosomes(chromosomes):
+def display_chromosomes(chromosomes, message="CHROMOSOMES"):
+    print(message.upper().center(chromosomes[0].display_length(), "="))
     for chromosome in chromosomes:
         chromosome.display()
 
@@ -60,7 +66,7 @@ def copy_chromosomes(chromosomes):
 
 def plot_pie_chart(values):
     """
-    Function used for easier debbuing. Shows how chromosomes are distributed.
+    Function used for easier debbuging. Shows how chromosomes are distributed.
     Not needed on release, but might be used to show the first and last generation.
     :param values: values of f(x) where:
     - x is the argument (chromosome's data)
@@ -119,14 +125,33 @@ def single_epoch(function, chromosomes):
     return chromosomes
 
 
+def user_input():
+    print("Configuring parameters...")
+    a = float(input("Enter 'a' parameter for the function: "))
+    b = float(input("Enter 'b' parameter for the function: "))
+    c = float(input("Enter 'c' parameter for the function: "))
+    d = float(input("Enter 'd' parameter for the function: "))
+    number_of_chromosomes = int(input("Enter desired number of chromosomes for each generation: "))
+    return a, b, c, d, number_of_chromosomes
+
+
+# Get user input
+run_mode = input("If you want to run the script in normal mode, press ENTER. "
+                 "If you want to enter default values, type 'd' and then press ENTER.")
+if run_mode == "d":
+    run_parameters = (3, 2, 1, 6, 32)
+else:
+    run_parameters = user_input()
+
 # Initialize function
-fun = Function(-5, 2, 1, 3)  # Random values, test phase
+fun = Function(run_parameters[0], run_parameters[1], run_parameters[2], run_parameters[3])
 fun.display()
 
 # Initialize chromosomes
-gen_chromosomes = initialize_chromosomes(16, 1, 31)  # Default values, test phase
-print("=== STARTING CHROMOSOMES ===")
-display_chromosomes(gen_chromosomes)
+gen_chromosomes = initialize_chromosomes(run_parameters[4], ARGUMENTS_START_RANGE, ARGUMENTS_END_RANGE)
+
+# Display the initalized chromosomes
+display_chromosomes(gen_chromosomes, "initialized chromosomes")
 
 """
     === MAIN LOOP ===
@@ -146,7 +171,7 @@ while True:
         break
     epoch += 1
 
-print("=== FINISHED CHROMOSOMES ===")
-display_chromosomes(result)
+# Display the chromosomes we finished with
+display_chromosomes(result, "finished chromosomes")
 
 # TODO: change fitness function to test the difference between THE BEST chromosome between epochs. Not required.
