@@ -29,9 +29,10 @@ def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
     return list_of_chromosomes
 
 
-def redistribute_chromosomes(chromosomes, chromosomes_values):
-    # TODO: It's possible we need to offset weight so it's not negative in case of negative values.
-    return random.choices(population=chromosomes, weights=chromosomes_values, k=len(chromosomes))
+def redistribute_chromosomes(chromosomes, chromosome_values):
+    offset = min(chromosome_values)
+    return random.choices(population=chromosomes, weights=[w - offset + 1 for w in chromosome_values],
+                          k=len(chromosomes))
 
 
 def display_chromosomes(chromosomes):
@@ -47,10 +48,28 @@ def get_chromosome_arguments(chromosomes):
     return chromosome_arguments
 
 
+def copy_chromosomes(chromosomes):
+    copied_chromosomes = []
+    for chromo in chromosomes:
+        chromo_copy = copy.copy(chromo)
+        copied_chromosomes.append(chromo_copy)
+    return copied_chromosomes
+
+
 # TODO: add a function to get function sum values
 
-def plot_piechart(values, labels):
-    # Plot a tasty pie chart
+def plot_pie_chart(values):
+    """
+    Function used for easier debbuing. Shows how chromosomes are distributed.
+    Not needed on release, but might be used to show the first and last generation.
+    :param values: values of f(x) where:
+    - x is the argument (chromosome's data)
+    - f(x) is a function that we evaluate with.
+    :return: Shows a pie chart of the chromosome distribution.
+    """
+    labels = []
+    for value in values:
+        labels.append(f"Ch: {value}")
     plt.pie(values, autopct='%1.1f%%', shadow=True, startangle=140)
     plt.legend(labels)
     plt.axis('equal')
@@ -59,75 +78,71 @@ def plot_piechart(values, labels):
 
 
 def fitness_test(function, old_generation_chromosomes, new_generation_chromosomes):
-    # TODO: implement dealing with negative numbers
     old_generation_integers = get_chromosome_arguments(old_generation_chromosomes)
     new_generation_integers = get_chromosome_arguments(new_generation_chromosomes)
     old_generation_sum = function.get_sum(old_generation_integers)
     new_generation_sum = function.get_sum(new_generation_integers)
     sum_difference = new_generation_sum - old_generation_sum
     limit = (max(new_generation_sum, old_generation_sum))
-    # TODO: ensure good fitness test
+    # Known issue: it might sometimes return division by zero. if the limit is 0.
     return sum_difference / limit
 
 
+# TODO: implement this for further improvements
+def fitness_test_single(function, old_generation_chromosomes, new_generation_chromosomes):
+    pass
+
+
 def single_epoch(function, chromosomes):
-    # Display all chromosomes, create a list of integer values of them and create labels list for pie chart.
-    chromosomes_integers = []  # Get values of chromos into a list
-    chromosome_labels = []  # PIE CHART
-    # print("=== CHROMOSOMES STARTER PACK ===")
-    for i in range(len(chromosomes)):
-        int_form = chromosomes[i].get_integer()
-        chromosomes_integers.append(int_form)
-        chromosome_labels.append(f"Ch{i}: {int_form}")  # PIE CHART
-    # Get values and its sum
+    # Create a list of integer values of chromosomes
+    chromosomes_integers = get_chromosome_arguments(chromosomes)
+
+    # Get values resulting from evaluating over function and sum of them
     function_values = function.get_values_list(chromosomes_integers)
 
-    # Plot a tasty pie chart DEBUG
-    # plot_piechart(fun_values, chromos_labels)
-
+    # Redistribute chromosomes by random selection (roulette)
     chromosomes = redistribute_chromosomes(chromosomes, function_values)
 
-    # If there is any code deserving a Code of Shame trophy, it's this one below.
-    # Make copies of chromosomes to allow for smooth crossing and mutations.
-    temp_chromos = []
-    for chromo in chromosomes:
-        chromo_copy = copy.copy(chromo)
-        temp_chromos.append(chromo_copy)
-    chromosomes = temp_chromos
+    # Make a pie chart of redistributed chromosomes. Not required
+    # plot_pie_chart(function_values)  # DEBUG
 
-    # Cross chromosomes
+    # Make copies of chromosomes to dereference them
+    chromosomes = copy_chromosomes(chromosomes)
+
+    # Cross pairs of chromosomes
     for i in range(0, len(chromosomes), 2):
         chromosomes[i].cross(chromosomes[i + 1])
 
     # Mutate chromosomes
-    for chromo in chromosomes:
-        chromo.mutate()
+    for chromosome in chromosomes:
+        chromosome.mutate()
 
     return chromosomes
 
 
 # Initialize function
-fun = Function(-0.5, 2, 1, 12)  # Random values, test phase
+fun = Function(5, 2, 1, 3)  # Random values, test phase
 fun.display()
 
 # Initialize chromosomes
-chromos = initialize_chromosomes(32, 1, 31)  # Default values, test phase
+chromosomes = initialize_chromosomes(16, 1, 31)  # Default values, test phase
 print("=== STARTING CHROMOSOMES ===")
-display_chromosomes(chromos)
+display_chromosomes(chromosomes)
 
-# MAIN LOOP  - WORK IN PROGRESS
-epoch = 0
-result = [Chromosome("00000")]
+"""
+    === MAIN LOOP ===
+"""
+epoch = 0  # Counts how many generations (epochs) it takes.
+result = [Chromosome("00000")]  # Default value, a safe-check to avoid going through loop without initializing result.
 while True:
     if epoch == 0:
-
-        result = single_epoch(fun, chromos)
+        result = single_epoch(fun, chromosomes)
 
     old_result = result
     result = single_epoch(fun, result)
     fitness_value = fitness_test(fun, old_result, result)
     logging.info(f"Fitness value for {epoch}. generation: {fitness_value}")
-    if abs(fitness_value) < 0.01:
+    if abs(fitness_value) < 0.025:
         logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epoch}")
         break
     epoch += 1
@@ -135,7 +150,4 @@ while True:
 print("=== FINISHED CHROMOSOMES ===")
 display_chromosomes(result)
 
-# TODO: change fitness function to test the difference between the HIGHEST VALUE chromosome between epochs.
-#  Might be the key idea.
-
-# TODO: This algorithm hates negative values. Solve it out.
+# TODO: change fitness function to test the difference between THE BEST chromosome between epochs. Not required.
