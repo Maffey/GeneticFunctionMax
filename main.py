@@ -62,6 +62,17 @@ def copy_chromosomes(chromosomes):
     return copied_chromosomes
 
 
+def find_best_chromosome(function, chromosomes):
+    # TODO: do it using max()
+    current_max = -10000000  # TODO: this needs to be super low
+    for chromosome in chromosomes:
+        chromosome_value = chromosome.get_value(function)
+        if chromosome_value > current_max:
+            current_max = chromosome_value
+            chromosome_binary = chromosome.binary()
+            chromosome_integer = chromosome.get_integer()
+    return chromosome_binary, chromosome_integer, current_max
+
 # TODO: add a function to get function sum values
 
 def plot_pie_chart(values):
@@ -88,14 +99,17 @@ def fitness_test(function, old_generation_chromosomes, new_generation_chromosome
     new_generation_integers = get_chromosome_arguments(new_generation_chromosomes)
     old_generation_sum = function.get_sum(old_generation_integers)
     new_generation_sum = function.get_sum(new_generation_integers)
-    sum_difference = new_generation_sum - old_generation_sum
     limit = (max(new_generation_sum, old_generation_sum, 0.0000000001))  # Last value ensures no division by zero
-    return sum_difference / limit
+    return (new_generation_sum - old_generation_sum) / limit
 
 
-# TODO: implement this for further improvements
+# TODO: implement this elsewhere for further improvements [list generators]
 def fitness_test_single(function, old_generation_chromosomes, new_generation_chromosomes):
-    pass
+    old_generation_max = max(chromosome.get_value(function) for chromosome in old_generation_chromosomes)
+    new_generation_max = max(chromosome.get_value(function) for chromosome in new_generation_chromosomes)
+    logging.debug(f"Max value of old generation: {old_generation_max} and the new: {new_generation_max}")
+    limit = (max(new_generation_max, old_generation_max, 0.0000000001))  # Last value ensures no division by zero
+    return (new_generation_max - old_generation_max) / limit
 
 
 def single_epoch(function, chromosomes):
@@ -139,7 +153,7 @@ def user_input():
 run_mode = input("If you want to run the script in normal mode, press ENTER. "
                  "If you want to enter default values, type 'd' and then press ENTER.")
 if run_mode == "d":
-    run_parameters = (3, 2, 1, 6, 32)
+    run_parameters = (-1, 1, -1, 16, 16)
 else:
     run_parameters = user_input()
 
@@ -165,13 +179,14 @@ while True:
     old_result = result
     result = single_epoch(fun, result)
     fitness_value = fitness_test(fun, old_result, result)
-    logging.info(f"Fitness value for {epoch}. generation: {fitness_value}")
-    if abs(fitness_value) < 0.02:
+    fitness_value_single = fitness_test_single(fun, old_result, result)
+    logging.info(f"Fitness value for {epoch}. generation || full estimation: {fitness_value}, "
+                 f"single estimation: {fitness_value_single}")
+    if abs(fitness_value) < 0.02 and abs(fitness_value_single) < 0.02:
         logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epoch}")
+        logging.info(f"The best chromosome value: {max(x.get_value(fun) for x in result)}\n")
         break
     epoch += 1
 
 # Display the chromosomes we finished with
 display_chromosomes(result, "finished chromosomes")
-
-# TODO: change fitness function to test the difference between THE BEST chromosome between epochs. Not required.

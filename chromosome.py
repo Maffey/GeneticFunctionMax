@@ -1,6 +1,8 @@
 import logging
 import random
 
+from function import Function
+
 
 class Chromosome:
     """
@@ -22,6 +24,10 @@ class Chromosome:
 
     def get_integer(self):
         return int(self.binary, base=2)
+
+    # TODO: If this is legit, implement it elsewhere
+    def get_value(self, function):
+        return Function.get_value(function, self.get_integer())
 
     def swap_bit(self, index):
         logging.debug(f"Chromosome to mutate: {self.binary}. Swapping bit at index {index}.")
