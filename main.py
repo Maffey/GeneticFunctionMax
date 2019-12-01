@@ -16,11 +16,11 @@ import matplotlib.pyplot as plt
 from chromosome import Chromosome
 from function import Function
 
-logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s: %(message)s')
 
 # The range of chromosome arguments for our algorithm.
 # Since the algorithm has no flexible change of arguments implemented it is not recommended to change those values.
-ARGUMENTS_START_RANGE = 1
+ARGUMENTS_START_RANGE = 0
 ARGUMENTS_END_RANGE = 31
 
 
@@ -46,7 +46,6 @@ def display_chromosomes(chromosomes, message="CHROMOSOMES"):
         chromosome.display()
 
 
-# TODO: use it in the single epoch
 def get_chromosome_arguments(chromosomes):
     chromosome_arguments = []
     for chromosome in chromosomes:
@@ -63,17 +62,16 @@ def copy_chromosomes(chromosomes):
 
 
 def find_best_chromosome(function, chromosomes):
-    # TODO: do it using max()
-    current_max = -10000000  # TODO: this needs to be super low
+    chromosome_binary, chromosome_integer = None, None
+    current_max_value = float('-inf')
     for chromosome in chromosomes:
         chromosome_value = chromosome.get_value(function)
-        if chromosome_value > current_max:
-            current_max = chromosome_value
-            chromosome_binary = chromosome.binary()
+        if chromosome_value > current_max_value:
+            current_max_value = chromosome_value
+            chromosome_binary = chromosome.binary
             chromosome_integer = chromosome.get_integer()
-    return chromosome_binary, chromosome_integer, current_max
+    return chromosome_binary, chromosome_integer, current_max_value
 
-# TODO: add a function to get function sum values
 
 def plot_pie_chart(values):
     """
@@ -146,6 +144,8 @@ def user_input():
     c = float(input("Enter 'c' parameter for the function: "))
     d = float(input("Enter 'd' parameter for the function: "))
     number_of_chromosomes = int(input("Enter desired number of chromosomes for each generation: "))
+    Chromosome.crossing_parameter = float(input("Enter desired crossing parameter: "))
+    Chromosome.mutation_parameter = float(input("Enter desired mutation parameter: "))
     return a, b, c, d, number_of_chromosomes
 
 
@@ -153,7 +153,7 @@ def user_input():
 run_mode = input("If you want to run the script in normal mode, press ENTER. "
                  "If you want to enter default values, type 'd' and then press ENTER.")
 if run_mode == "d":
-    run_parameters = (-1, 1, -1, 16, 16)
+    run_parameters = (1, 1, 1, 1, 8)  # Default values
 else:
     run_parameters = user_input()
 
@@ -164,7 +164,7 @@ fun.display()
 # Initialize chromosomes
 gen_chromosomes = initialize_chromosomes(run_parameters[4], ARGUMENTS_START_RANGE, ARGUMENTS_END_RANGE)
 
-# Display the initalized chromosomes
+# Display the initialized chromosomes
 display_chromosomes(gen_chromosomes, "initialized chromosomes")
 
 """
@@ -181,12 +181,15 @@ while True:
     fitness_value = fitness_test(fun, old_result, result)
     fitness_value_single = fitness_test_single(fun, old_result, result)
     logging.info(f"Fitness value for {epoch}. generation || full estimation: {fitness_value}, "
-                 f"single estimation: {fitness_value_single}")
+                 f"single element estimation: {fitness_value_single}")
     if abs(fitness_value) < 0.02 and abs(fitness_value_single) < 0.02:
         logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epoch}")
-        logging.info(f"The best chromosome value: {max(x.get_value(fun) for x in result)}\n")
         break
     epoch += 1
 
 # Display the chromosomes we finished with
 display_chromosomes(result, "finished chromosomes")
+
+# Show the best candidate for having the highest value
+best_chromosome = find_best_chromosome(fun, result)
+logging.info(f"Best chromosome: {best_chromosome[0]} ({best_chromosome[1]}) | f(x) = {best_chromosome[2]}")
