@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 from chromosome import Chromosome
 from function import Function
 
-logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s: %(message)s')
 
 # The range of chromosome arguments for our algorithm.
 # Since the algorithm has no flexible change of arguments implemented it is not recommended to change those values.
@@ -97,8 +97,8 @@ def plot_pie_chart(values):
 
 
 def plot_line_chart(values):
-    epochs = range(len(values))
-    plt.plot(epochs, values, "go-")
+    plot_epochs = range(len(values))
+    plt.plot(plot_epochs, values, "go-")
     plt.grid(color='b', linestyle='--', linewidth=1)
     plt.show()
 
@@ -185,6 +185,7 @@ result = [Chromosome("00000")]  # Default value, a safe-check to avoid going thr
 epoch_total_sums = []  # Tracks how the sum changes for each epoch
 best_chromosomes = []  # Stores best chromosome for each epoch
 fitness_count = 0  # Stores how many times fitness test stagnated
+
 while True:
     if epochs == 0:
         result = single_epoch(fun, gen_chromosomes)
