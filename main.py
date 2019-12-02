@@ -162,7 +162,7 @@ def user_input():
 run_mode = input("If you want to run the script in normal mode, press ENTER. "
                  "If you want to enter default values, type 'd' and then press ENTER.")
 if run_mode == "d":
-    run_parameters = (1, 1, 1, 1, 16)  # Default values
+    run_parameters = (-1, 1, 1, 1, 16)  # Default values
 else:
     run_parameters = user_input()
 
@@ -183,6 +183,7 @@ epochs = 0  # Counts how many generations (epochs) it takes to quit genetic algo
 result = [Chromosome("00000")]  # Default value, a safe-check to avoid going through loop without initializing result
 epoch_total_sums = []  # Tracks how the sum changes for each epoch
 best_chromosomes = []  # Stores best chromosome for each epoch
+fitness_count = 0  # Stores how many times fitness test stagnated
 while True:
     if epochs == 0:
         result = single_epoch(fun, gen_chromosomes)
@@ -207,9 +208,14 @@ while True:
     logging.info(f"Fitness value for {epochs}. generation || full estimation: {fitness_value}, "
                  f"single element estimation: {fitness_value_single}")
     # If fitness of our generation is pretty bad and 10 iterations have already been done, quit the loop
-    if (abs(fitness_value) < 0.02 and abs(fitness_value_single) < 0.02) and epochs > 10:
-        logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epochs}")
-        break
+    if (abs(fitness_value) < 0.02 and abs(fitness_value_single) < 0.02) and epochs > 5:
+        if fitness_count >= 5:
+            logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epochs}")
+            break
+        else:
+            fitness_count += 1
+    else:
+        fitness_count = 0
 
     # Saves the amount of iterations (epochs) we do
     epochs += 1
