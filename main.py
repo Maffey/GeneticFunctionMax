@@ -66,15 +66,14 @@ def copy_chromosomes(chromosomes):
 
 
 def find_best_chromosome(function, chromosomes):
-    chromosome_binary, chromosome_integer = None, None
+    current_best_chromosome = None
     current_max_value = float('-inf')
     for chromosome in chromosomes:
         chromosome_value = chromosome.get_value(function)
-        if chromosome_value > current_max_value:
+        if chromosome.get_value(function) > current_max_value:
             current_max_value = chromosome_value
-            chromosome_binary = chromosome.binary
-            chromosome_integer = chromosome.get_integer()
-    return chromosome_binary, chromosome_integer, current_max_value
+            current_best_chromosome = chromosome
+    return current_best_chromosome
 
 
 def plot_pie_chart(values):
@@ -112,7 +111,6 @@ def fitness_test(function, old_generation_chromosomes, new_generation_chromosome
     return (new_generation_sum - old_generation_sum) / limit
 
 
-# TODO: implement this elsewhere for further improvements [list generators]
 def fitness_test_single(function, old_generation_chromosomes, new_generation_chromosomes):
     old_generation_max = max(chromosome.get_value(function) for chromosome in old_generation_chromosomes)
     new_generation_max = max(chromosome.get_value(function) for chromosome in new_generation_chromosomes)
@@ -164,7 +162,7 @@ def user_input():
 run_mode = input("If you want to run the script in normal mode, press ENTER. "
                  "If you want to enter default values, type 'd' and then press ENTER.")
 if run_mode == "d":
-    run_parameters = (-1, 1, 1, 1, 16)  # Default values
+    run_parameters = (1, 1, 1, 1, 16)  # Default values
 else:
     run_parameters = user_input()
 
@@ -181,35 +179,51 @@ display_chromosomes(gen_chromosomes, "initialized chromosomes")
 """
     === MAIN LOOP ===
 """
-epoch = 0  # Counts how many generations (epochs) it takes
+epochs = 0  # Counts how many generations (epochs) it takes to quit genetic algorithm
 result = [Chromosome("00000")]  # Default value, a safe-check to avoid going through loop without initializing result
 epoch_total_sums = []  # Tracks how the sum changes for each epoch
+best_chromosomes = []  # Stores best chromosome for each epoch
 while True:
-    if epoch == 0:
+    if epochs == 0:
         result = single_epoch(fun, gen_chromosomes)
         epoch_total_sums.append(get_function_sum(fun, gen_chromosomes))
 
+    # Store the previous generation for fitness tests
     old_result = result
+
+    # Perform new evolution
     result = single_epoch(fun, result)
+
+    # Save the total sum for the line graph
     epoch_total_sums.append(get_function_sum(fun, result))
+
+    # Find the best chromosome in this epoch
+    best_chromosomes.append(find_best_chromosome(fun, result))
+
+    # Perform two fitness tests for total generation values and single-best chromosome
     fitness_value = fitness_test(fun, old_result, result)
     fitness_value_single = fitness_test_single(fun, old_result, result)
-    logging.info(f"Fitness value for {epoch}. generation || full estimation: {fitness_value}, "
+
+    logging.info(f"Fitness value for {epochs}. generation || full estimation: {fitness_value}, "
                  f"single element estimation: {fitness_value_single}")
-    if abs(fitness_value) < 0.02 and abs(fitness_value_single) < 0.02:
-        logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epoch}")
+    # If fitness of our generation is pretty bad and 10 iterations have already been done, quit the loop
+    if (abs(fitness_value) < 0.02 and abs(fitness_value_single) < 0.02) and epochs > 10:
+        logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epochs}")
         break
-    epoch += 1
+
+    # Saves the amount of iterations (epochs) we do
+    epochs += 1
 
 # Display the chromosomes we finished with
 display_chromosomes(result, "finished chromosomes")
 
-# Show the best candidate for having the highest value
-best_chromosome = find_best_chromosome(fun, result)
-logging.info(f"Best chromosome: {best_chromosome[0]} ({best_chromosome[1]}) | f(x) = {best_chromosome[2]}")
+# Finds the best chromosome across all epochs
+best_chromosome = find_best_chromosome(fun, best_chromosomes)
+logging.debug(f"List of best chromosomes across epochs: {best_chromosomes}")
+# Shows the information about the chromosome
+logging.info(f"Best chromosome: {best_chromosome.binary} ({best_chromosome.get_integer()}) | "
+             f"f(x) = {best_chromosome.get_value(fun)}")
 
 # Plot chart of progress across epochs
 logging.debug(f"All sums for each epoch: {epoch_total_sums}")
 plot_line_chart(epoch_total_sums)
-
-# TODO: add a plot that display all best chromosomes across epochs
