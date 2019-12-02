@@ -24,7 +24,11 @@ ARGUMENTS_START_RANGE = 0
 ARGUMENTS_END_RANGE = 31
 
 
-# This might stay out of class.
+def get_function_sum(function, chromosomes):
+    chromosome_arguments = get_chromosome_arguments(chromosomes)
+    return function.get_sum(chromosome_arguments)
+
+
 def initialize_chromosomes(number_of_chromosomes, start_range, end_range):
     list_of_chromosomes = []
     for chromosome in range(number_of_chromosomes):
@@ -85,10 +89,16 @@ def plot_pie_chart(values):
     labels = []
     for value in values:
         labels.append(f"Ch: {value}")
-    plt.pie(values, autopct='%1.1f%%', shadow=True, startangle=140)
+    plt.pie(values, autopct="%1.1f%%", shadow=True, startangle=140)
     plt.legend(labels)
     plt.axis('equal')
     plt.tight_layout()
+    plt.show()
+
+
+def plot_line_chart(values):
+    epochs = range(len(values))
+    plt.plot(epochs, values, "go-")
     plt.show()
 
 
@@ -153,7 +163,7 @@ def user_input():
 run_mode = input("If you want to run the script in normal mode, press ENTER. "
                  "If you want to enter default values, type 'd' and then press ENTER.")
 if run_mode == "d":
-    run_parameters = (1, 1, 1, 1, 8)  # Default values
+    run_parameters = (-1, 1, 1, 1, 16)  # Default values
 else:
     run_parameters = user_input()
 
@@ -170,14 +180,17 @@ display_chromosomes(gen_chromosomes, "initialized chromosomes")
 """
     === MAIN LOOP ===
 """
-epoch = 0  # Counts how many generations (epochs) it takes.
-result = [Chromosome("00000")]  # Default value, a safe-check to avoid going through loop without initializing result.
+epoch = 0  # Counts how many generations (epochs) it takes
+result = [Chromosome("00000")]  # Default value, a safe-check to avoid going through loop without initializing result
+epoch_total_sums = []  # Tracks how the sum changes for each epoch
 while True:
     if epoch == 0:
         result = single_epoch(fun, gen_chromosomes)
+        epoch_total_sums.append(get_function_sum(fun, gen_chromosomes))
 
     old_result = result
     result = single_epoch(fun, result)
+    epoch_total_sums.append(get_function_sum(fun, result))
     fitness_value = fitness_test(fun, old_result, result)
     fitness_value_single = fitness_test_single(fun, old_result, result)
     logging.info(f"Fitness value for {epoch}. generation || full estimation: {fitness_value}, "
@@ -193,3 +206,9 @@ display_chromosomes(result, "finished chromosomes")
 # Show the best candidate for having the highest value
 best_chromosome = find_best_chromosome(fun, result)
 logging.info(f"Best chromosome: {best_chromosome[0]} ({best_chromosome[1]}) | f(x) = {best_chromosome[2]}")
+
+# Plot chart of progress across epochs
+logging.debug(f"All sums for each epoch: {epoch_total_sums}")
+plot_line_chart(epoch_total_sums)
+
+# TODO: add a plot that display all best chromosomes across epochs
