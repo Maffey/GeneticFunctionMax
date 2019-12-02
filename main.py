@@ -16,12 +16,13 @@ import matplotlib.pyplot as plt
 from chromosome import Chromosome
 from function import Function
 
-logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s: %(message)s')
+logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s: %(message)s')
 
 # The range of chromosome arguments for our algorithm.
 # Since the algorithm has no flexible change of arguments implemented it is not recommended to change those values.
 ARGUMENTS_START_RANGE = 0
 ARGUMENTS_END_RANGE = 31
+FITNESS_CHANGE_PARAM = 0.02
 
 
 def get_function_sum(function, chromosomes):
@@ -208,7 +209,7 @@ while True:
     logging.info(f"Fitness value for {epochs}. generation || full estimation: {fitness_value}, "
                  f"single element estimation: {fitness_value_single}")
     # If fitness of our generation is pretty bad and 10 iterations have already been done, quit the loop
-    if (abs(fitness_value) < 0.02 and abs(fitness_value_single) < 0.02) and epochs > 5:
+    if (abs(fitness_value) < FITNESS_CHANGE_PARAM and abs(fitness_value_single) < FITNESS_CHANGE_PARAM) and epochs > 5:
         if fitness_count >= 5:
             logging.info(f"Fitness stagnates. Interrupting genetic evolution.\nTotal epochs: {epochs}")
             break
