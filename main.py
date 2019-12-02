@@ -99,6 +99,7 @@ def plot_pie_chart(values):
 def plot_line_chart(values):
     epochs = range(len(values))
     plt.plot(epochs, values, "go-")
+    plt.grid(color='b', linestyle='--', linewidth=1)
     plt.show()
 
 
