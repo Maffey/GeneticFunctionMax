@@ -7,7 +7,7 @@ The app finds max value in the given range for the given function using genetic 
 n = 6
 Pk = 0.8
 Pm = 0.2
-Zakładam, że a = 1, jako że dla indeksu 5607 zadanie staje się trywialne i nie wykorzystuje algorytmu genetycznego.
+Zakładam, że a = 1, jako że zadanie staje się trywialne i nie wykorzystuje algorytmu genetycznego.
 f(x) = x + 7
 
 Dane w chromosomach zapisujemy w postaci binarnej, by uprościć stosowanie krzyżowania i mutacji, zaś naszą funkcją przystosowania jest suma wszystkich f(x), gdzie x to nasze wylosowane parametry chromosomów.
